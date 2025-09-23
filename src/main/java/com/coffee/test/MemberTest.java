@@ -16,7 +16,6 @@ public class MemberTest {
     private MemberRepository memberRepository; // 기본 값 null (인터페이스와 클래스는 참조자료형이기 때문에 값이 들어가지 않으면 기본값이 null이다.)
 
 
-
     @Test
     @DisplayName("회원 몇 명 추가하기")
     public void insertMemberList(){
