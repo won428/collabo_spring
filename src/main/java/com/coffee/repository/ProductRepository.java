@@ -8,6 +8,4 @@ import java.util.List;
 public interface ProductRepository extends JpaRepository<Product, Long> {
     // 상품의 아이디를 역순으로 정렬하여 목록을 보여 주어야 합니다.
     List<Product> findAllByOrderByIdDesc();
-
-
 }
