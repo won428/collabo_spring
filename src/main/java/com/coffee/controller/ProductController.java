@@ -161,6 +161,15 @@ public class ProductController {
             return base64Image;
         }
     }
+@GetMapping("/detail/{id}")
+ public ResponseEntity<Product> detailProduct(@PathVariable Long id){
+        Product product = this.productService.getProductBy(id);
 
+        if(product == null){ // 404 응답
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }else { // 200 ok 응답
+            return ResponseEntity.ok(product);
+        }
+ }
 
 }
