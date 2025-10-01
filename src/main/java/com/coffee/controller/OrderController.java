@@ -1,7 +1,9 @@
 package com.coffee.controller;
 
+import com.coffee.constant.Role;
 import com.coffee.dto.OrderDto;
 import com.coffee.dto.OrderItemDto;
+import com.coffee.dto.OrderResponseDto;
 import com.coffee.entity.Member;
 import com.coffee.entity.Order;
 import com.coffee.entity.OrderProduct;
@@ -47,7 +49,7 @@ public class OrderController {
         Order order = new Order();
         // 이 사람이 주문자 입니다.
         order.setMember(member);
-        order.setOrederdate(LocalDate.now()); // 주문 시점
+        order.setOrderdate(LocalDate.now()); // 주문 시점
         order.setStatus(dto.getStatus());
 
 
@@ -94,6 +96,67 @@ public class OrderController {
         return ResponseEntity.ok(message);
     }
 
+    // 특정한 회원의 주문 정보를 최신 날짜 순으로 조회합니다.
+    // http://localhost:9000/order/list?memberId=회원아이디
+    @GetMapping("/list") // 리액트의 OrderList.js 파일내의 useEffect 참조
+    public  ResponseEntity<List<OrderResponseDto>> getOrderList(@RequestParam Long memberId, @RequestParam Role role){
+        System.out.println("로그인 한 사람의 id : " + memberId);
+        System.out.println("로그인 한 사람의 역할 : " + role);
+        List<Order> orders = null;
+        if(role == Role.ADMIN){
+            System.out.println("관리자");
+            orders = orderService.findAllOrderByIdDesc();
+        }else if(role == Role.USER){
+            System.out.println("일반인");
+            orders = orderService.findOrderByMemberId(memberId);
+        }else{
+            System.out.println("존재하지 않는 역할입니다.");
+        }
+
+
+        System.out.println("주문 건수 : " + orders.size());
+
+        List<OrderResponseDto> responseDtos = new ArrayList<>();
+
+        for(Order bean:orders){
+            OrderResponseDto dto = new OrderResponseDto();
+            // 주문의 기초 정보 셋팅
+            dto.setOrderId(bean.getId());
+            dto.setOrderdate(bean.getOrderdate());
+            dto.setStatus(bean.getStatus().name());
+
+            // `주문 상품` 여러개에 대한 셋팅
+            List<OrderResponseDto.OrderItem> orderItems = new ArrayList<>();
+
+            for (OrderProduct item : bean.getOrderProducts()){
+                OrderResponseDto.OrderItem items = new OrderResponseDto.OrderItem(item.getProduct().getName(), item.getQuantity());
+
+                orderItems.add(items);
+            }
+
+            dto.setOrderItems(orderItems);
+
+            responseDtos.add(dto);
+        }
+
+        return ResponseEntity.ok(responseDtos);
+    }
+
+
+    @GetMapping("/update/{orderId}")
+    public String ddd(@PathVariable Long orderId){
+        System.out.println("수정할 항목 : " + orderId);
+        return null ;
+    }
+
+
+
+
+
+
+
+
+    /*
     @GetMapping("/list/{id}")
     public List<Order> orderList(@PathVariable Long id){
 
@@ -115,6 +178,6 @@ public class OrderController {
         }
 
         return OrderList;
-    }
+    }  */
 
 }

@@ -30,7 +30,7 @@ public class Order { // 주문과 관련된 Entity입니다.
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderProduct> orderProducts;
 
-    private LocalDate orederdate; // 주문 날짜
+    private LocalDate orderdate; // 주문 날짜
 
 
     private OrderStatus status; // 주문 상태

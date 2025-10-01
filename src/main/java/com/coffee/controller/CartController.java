@@ -103,7 +103,7 @@ public class CartController {
         Member member = optionalMember.get() ;
         Cart cart = cartService.findByMember(member);
 
-        if(cart == null){cart = new Cart() ; }
+        if(cart == null){cart = new Cart();}
 
         // cartProducts : 과거에 내가 Cart에 담아 두었던 목록을 의미하는 컬렉션
         List<CartProductResponseDto> cartProducts = new ArrayList<>();
