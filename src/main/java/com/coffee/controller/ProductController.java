@@ -161,15 +161,21 @@ public class ProductController {
             return base64Image;
         }
     }
-@GetMapping("/detail/{id}")
- public ResponseEntity<Product> detailProduct(@PathVariable Long id){
-        Product product = this.productService.getProductBy(id);
+    @GetMapping("/detail/{id}")
+    public ResponseEntity<Product> detailProduct(@PathVariable Long id){
+            Product product = this.productService.getProductBy(id);
 
-        if(product == null){ // 404 응답
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }else { // 200 ok 응답
-            return ResponseEntity.ok(product);
-        }
- }
+            if(product == null){ // 404 응답
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            }else { // 200 ok 응답
+                return ResponseEntity.ok(product);
+            }
+     }
+
+    @GetMapping // 홈페이지에 보여줄 큰 이미지들에 대한 정보들을 읽어옵니다.
+    public List<Product> getBigsizeProducts(@RequestParam(required = false) String filter){
+        return productService.getProductsByFilter(filter);
+    }
+
 
 }
