@@ -1,13 +1,12 @@
 package com.coffee.controller;
 
+import com.coffee.constant.Category;
+import com.coffee.dto.SearchDto;
 import com.coffee.entity.Product;
 import com.coffee.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -182,20 +181,44 @@ public class ProductController {
     }
 
 
+//    @GetMapping("/list") // 페이징 관련 파라미터를 사용하여 상품목록 조회
+//    public ResponseEntity<Page<Product>> ListProducts(
+//            @RequestParam(defaultValue = "0") int pageNumber,
+//            @RequestParam(defaultValue = "6") int pageSize
+//    ){
+//        System.out.println("pageNumber : " + pageNumber + ", pageSize : " + pageSize);
+//
+//        // 현재 페이지는 pageNumber이고, 페이지당 보여줄 갯수 pageSize를 사용하여 Pageable 페이지를 구합니다.
+//        // 상품 번호가 큰 것부터 정렬합니다.
+//        Sort mysort = Sort.by(Sort.Direction.DESC, "id");
+//        Pageable pageable = PageRequest.of(pageNumber, pageSize, mysort );
+//
+//        Page<Product> productPage = productService.ListProducts(pageable);
+//
+//        return ResponseEntity.ok(productPage);
+//    }
+
+    // 필드 검색 조건과 페이징 관련 파라미터를 사용하여 상품 목록을 조회합니다.
     @GetMapping("/list") // 페이징 관련 파라미터를 사용하여 상품목록 조회
     public ResponseEntity<Page<Product>> ListProducts(
             @RequestParam(defaultValue = "0") int pageNumber,
-            @RequestParam(defaultValue = "6") int pageSize
+            @RequestParam(defaultValue = "6") int pageSize,
+            @RequestParam(defaultValue = "all") String searchDateType,
+            @RequestParam(defaultValue = "") Category category,
+            @RequestParam(defaultValue = "") String searchMode,
+            @RequestParam(defaultValue = "") String searchKeyword
     ){
-        System.out.println("pageNumber : " + pageNumber + ", pageSize : " + pageSize);
 
-        // 현재 페이지는 pageNumber이고, 페이지당 보여줄 갯수 pageSize를 사용하여 Pageable 페이지를 구합니다.
-        // 상품 번호가 큰 것부터 정렬합니다.
-        Sort mysort = Sort.by(Sort.Direction.DESC, "id");
-        Pageable pageable = PageRequest.of(pageNumber, pageSize, mysort );
+        SearchDto searchDto = new SearchDto(searchDateType, category, searchMode, searchKeyword);
 
-        Page<Product> productPage = productService.ListProducts(pageable);
+        Page<Product> products = productService.ListProducts(searchDto, pageNumber, pageSize);
 
-        return ResponseEntity.ok(productPage);
+        System.out.println("검색 조건 : " + searchDto);
+        System.out.println("총 상품 개수 : " + products.getTotalElements());
+        System.out.println("총 페이지 번호 : " + products.getTotalPages());
+        System.out.println("현재 페이지 번호 : " + products.getNumber());
+
+        // http 응답 코드 200과 함께 상품 정보를 json 형태로 반환해 줍니다.
+        return ResponseEntity.ok(products);
     }
 }

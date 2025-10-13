@@ -1,10 +1,14 @@
 package com.coffee.service;
 
+import com.coffee.dto.SearchDto;
 import com.coffee.entity.Product;
 import com.coffee.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -67,5 +71,38 @@ public class ProductService {
 
     public Page<Product> ListProducts(Pageable pageable) {
         return this.productRepository.findAll(pageable);
+    }
+
+    //필드 검색 조건과 페이징 기본 정보를 사용하여 상품 목록을 조회하는 로직을 작성합니다.
+    public Page<Product> ListProducts(SearchDto searchDto, int pageNumber, int pageSize){
+
+        Specification<Product> spec = Specification.where(null); // null은 현재 어떠한 조건도 없음을 의미합니다.
+
+        // 기간 검색 콤보 박스의 조건 추가하기
+        if(searchDto.getSearchDateType() != null){
+            spec = spec.and(ProductSpecification.hasDateRange(searchDto.getSearchDateType()));
+        }
+        // 카테고리 조건 추가하기
+        if(searchDto.getCategory() != null){
+            spec = spec.and(ProductSpecification.hasCategory(searchDto.getCategory()));
+        }
+        // 검색 모드에 따른 조건 추가하기(name 또는 description)
+        String searchMode = searchDto.getSearchMode();
+        String searchKeyword = searchDto.getSearchKeyword();
+
+        if(searchMode != null && searchKeyword != null){
+            if("name".equals(searchMode)){
+                spec = spec.and(ProductSpecification.hasNameLike(searchKeyword));
+            }else if("description".equals(searchMode)){
+                spec = spec.and(ProductSpecification.hasDescriptionLike(searchKeyword));
+            }
+        }
+
+        // 상품의 id를 역순으로 정렬하기
+        Sort sort = Sort.by(Sort.Order.desc("id"));
+        // pageNumber(0 base) 페이지를 보여주는데, pageSize개씩 보여주고 sort대로 정렬한다.
+        Pageable pageable= PageRequest.of(pageNumber,pageSize,sort);
+
+        return this.productRepository.findAll(spec, pageable);
     }
 }
