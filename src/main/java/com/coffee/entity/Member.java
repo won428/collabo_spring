@@ -1,6 +1,7 @@
 package com.coffee.entity;
 
 import com.coffee.constant.Role;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -35,7 +36,7 @@ public class Member {
     // @Pattern()은 정규 표현식을 의미합니다
     // [asdf] : 대괄호 사이에 들어 있는 글자 1개와 매칭
     @NotBlank(message = "비밀번호는 필수 입력 사항입니다.")
-    @Size(message = "비밀 번호는 8자리 이상, 16자리 이하로 입력해 주세요", min = 8, max = 16)
+    @Size(message = "비밀 번호는 8자리 이상, 255자리 이하로 입력해 주세요", min = 8, max = 255)
     @Pattern(regexp = ".*[A-Z].*", message = "비밀 번호는 대문자 1개 이상을 포함해야 합니다.")
     @Pattern(regexp = ".*[!@#$%].*", message = "비밀 번호는 특수 문자 '!@#$%' 중 하나 이상을 포함해야 합니다.")
     private String password;
@@ -46,6 +47,10 @@ public class Member {
     @Enumerated(EnumType.STRING) // 컬럼에 문자열 형식으로 데이터가 들어감
     private Role role; // 일반인 또는 관리자
 
+    // 자바의 객체를 json 타입으로 변경할때, LocalDate, LocalDateTime등의 클래스들이 변환이 잘 이루어지지 않습니다.
+    // Jackson 라이브러리를 사용하여 이를 해결 할 수 있습니다.
+    // pom.xml 파일이 Jackson 라이브러리를 추가해 주어야합니다.
+    @JsonFormat(pattern = "yyyy-MM-dd") // 변환할 날짜 형식을 개발자가 지정
     private LocalDate regdate; // 등록일자
 
     public Member() {

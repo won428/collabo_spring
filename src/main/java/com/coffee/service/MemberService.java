@@ -4,6 +4,8 @@ import com.coffee.constant.Role;
 import com.coffee.entity.Member;
 import com.coffee.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -21,10 +23,18 @@ public class MemberService {
     return memberRepository.findByEmail(email);
     }
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     public void insert(Member bean) {
         // 사용자 '역할(Role)'과 '등록 일자(Regdate)'는 여기서 넣습니다.
         bean.setRole(Role.USER);
         bean.setRegdate(LocalDate.now());
+
+        // 비밀 번호 암호화
+        String encodedPassword = passwordEncoder.encode(bean.getPassword());
+        bean.setPassword(encodedPassword);
+
         // 주의) Repsitory에서 인서트 작업은 save() 메소드를 사용합니다.
         memberRepository.save(bean);
     }
